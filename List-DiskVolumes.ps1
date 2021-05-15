@@ -121,6 +121,7 @@ function Get-DiskspaceFromComputer {
         $WmiResult = Get-WmiObject Win32_Volume -ComputerName $ServerName | Select-Object Name, @{Label="Capacity ($Unit)";Expression={[decimal]::round($_.Capacity/$ConvertTo)}}, @{Label="FreeSpace ($Unit)";Expression={[decimal]::round($_.FreeSpace/$ConvertTo)}}, BootVolume, SystemVolume, FileSystem | Sort-Object Name 
         $global:Html += $WmiResult | ConvertTo-Html -Fragment -PreContent ('<h2>Server {0}</h2>' -f ($ServerName))
         $global:VolumeContents += "============================ SERVER: $ServerName ================================="
+        $VolumeList = $WmiResult | Select Name
         Foreach ($Volume in $VolumeList){
             $global:VolumeContents += "*********** Volume $Volume ***********"
             $global:VolumeContents += Get-ChildItem -Recurse $Volume | Out-String
