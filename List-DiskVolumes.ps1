@@ -95,6 +95,7 @@ $Unit = $Unit.ToUpper()
 $now = Get-Date -Format F
 $ReportTitle = ('Diskspace Report - {0}' -f ($now))
 $global:Html = ''
+$global:VolumeContents = ""
 
 switch($Unit){
     'GB' {
@@ -119,6 +120,11 @@ function Get-DiskspaceFromComputer {
 
         $WmiResult = Get-WmiObject Win32_Volume -ComputerName $ServerName | Select-Object Name, @{Label="Capacity ($Unit)";Expression={[decimal]::round($_.Capacity/$ConvertTo)}}, @{Label="FreeSpace ($Unit)";Expression={[decimal]::round($_.FreeSpace/$ConvertTo)}}, BootVolume, SystemVolume, FileSystem | Sort-Object Name 
         $global:Html += $WmiResult | ConvertTo-Html -Fragment -PreContent ('<h2>Server {0}</h2>' -f ($ServerName))
+        $global:VolumeContents += "============================ SERVER: $ServerName ================================="
+        Foreach ($Volume in $VolumeList){
+            $global:VolumeContents += "*********** Volume $Volume ***********"
+            $global:VolumeContents += Get-ChildItem -Recurse $Volume | Out-String
+        }
     }
 
     $WmiResult
@@ -189,7 +195,10 @@ if($AllExchangeServer) {
 
         $output = Get-DiskspaceFromComputer -ServerName $server.Name 
 
-        if(!($SendMail)) { $output | Format-Table -AutoSize } 
+        if(!($SendMail)) { 
+            $output | Format-Table -AutoSize
+            $global:VolumeContents
+        } 
 
     }
 }
@@ -197,7 +206,10 @@ else {
 
     $output = Get-DiskspaceFromComputer -ServerName $ComputerName
 
-    if(!($SendMail)) { $output | Format-Table -AutoSize } 
+    if(!($SendMail)) { 
+        $output | Format-Table -AutoSize
+        $global:VolumeContents
+     } 
 
 }
 
@@ -206,6 +218,7 @@ if($SendMail) {
     [string]$Body = ConvertTo-Html -Body $global:Html -Title 'Status' -Head $head
     
     Send-MailMessage -From $MailFrom -To $Mailto -SmtpServer $MailServer -Body $Body -BodyAsHtml -Subject $ReportTitle
+    Send-MailMessage -From $MailFrom -To $Mailto -SmtpServer $MailServer -Body $global:VolumeContents -Subject "$ReportTitle - Disk contents" 
     
     Write-Output ('Email sent to {0}' -f ($MailTo))
 } 
