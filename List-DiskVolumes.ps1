@@ -215,13 +215,16 @@ else {
     if(!($SendMail)) { 
         $output | Format-Table -AutoSize
         $global:VolumeContents
-     } 
+     } Else {
+         $Output += $global:VolumeContents
+     }
 
 }
 
 if($SendMail) {
 
     [string]$Body = ConvertTo-Html -Body $global:Html -Title 'Status' -Head $head
+    
     
     Send-MailMessage -From $MailFrom -To $Mailto -SmtpServer $MailServer -Body $Body -BodyAsHtml -Subject $ReportTitle
     Send-MailMessage -From $MailFrom -To $Mailto -SmtpServer $MailServer -Body $global:VolumeContents -Subject "$ReportTitle - Disk contents" 
