@@ -40,6 +40,7 @@
   1.12     PowerShell hygiene applied
   1.1.3    Version number adjusted, minor PowerShell adjustments
   1.3      Tested for Windows Server 2019, minor PowerShell adjustments
+  1.3.1    Added dump of volume contents (to be tested)
 
   .PARAMETER ComputerName
   Can of the computer to fetch disk information from  
