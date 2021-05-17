@@ -215,9 +215,7 @@ else {
     if(!($SendMail)) { 
         $output | Format-Table -AutoSize
         $global:VolumeContents
-     } Else {
-         $Output += $global:VolumeContents
-     }
+     } 
 
 }
 
