@@ -124,8 +124,12 @@ function Get-DiskspaceFromComputer {
         $global:VolumeContents += "============================ SERVER: $ServerName ================================="
         $VolumeList = $WmiResult | Select Name
         Foreach ($Volume in $VolumeList){
+            If ($Volume.Name.Length -le 3){
+                Write-host "passing on $($Volume.Name) because it's a root drive"
+            } Else {
             $global:VolumeContents += "*********** Volume $Volume ***********"
-            $global:VolumeContents += Get-ChildItem -Recurse $Volume | Out-String
+            $global:VolumeContents += Get-ChildItem -Recurse $($Volume.Name) | Out-String
+           }
         }
     }
 
